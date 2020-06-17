@@ -1,30 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { useHistory } from "react-router-dom";
 import axios from "axios";
-import { useParams, useHistory } from "react-router-dom";
-
 const initialMovie = {
   title: "",
   director: "",
   metascore: "",
   stars: [],
 };
-
-const UpdateMovie = (props) => {
+const CreateMovie = (props) => {
   const [movie, setMovie] = useState(initialMovie);
-  const { id } = useParams();
-
   const history = useHistory();
-
-  useEffect(() => {
-    axios
-      .get(`http://localhost:5000/api/movies/${id}`)
-      .then((res) => {
-        setMovie(res.data);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, [id]);
 
   const changeHandler = (e) => {
     e.persist();
@@ -40,18 +25,20 @@ const UpdateMovie = (props) => {
       [e.target.name]: value,
     });
   };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     axios
-      .put(`http://localhost:5000/api/movies/${id}`, movie)
+      .post(`http://localhost:5000/api/movies/`, movie)
       .then((res) => {
         props.setRefresh(true);
-        history.push(`/movies/${id}`);
+        history.push(`/movies/${res.data[res.data.length - 1].id}`);
       })
       .catch((err) => console.log(err));
   };
+
   return (
-    <div>
+    <>
       <h2>Update Movie</h2>
       <form onSubmit={handleSubmit}>
         <label>Title:&nbsp;</label>
@@ -88,8 +75,8 @@ const UpdateMovie = (props) => {
 
         <button>Update</button>
       </form>
-    </div>
+    </>
   );
 };
 
-export default UpdateMovie;
+export default CreateMovie;
